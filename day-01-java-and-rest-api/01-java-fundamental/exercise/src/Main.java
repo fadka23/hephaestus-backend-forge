@@ -6,7 +6,7 @@ import service.CustomerService;
 public class Main {
     public static void main(String[] args) throws Exception {
         CustomerService customer1 = new CustomerService();
-        customer1.createCustomer("Fadhly", "tes@gmail.com", "123456");
+        customer1.createCustomer("", "tes@gmail.com", "123456");
         customer1.createCustomer("Fadka", "coba@gmail.com", "654321");
 
         List<Customer> customer = customer1.getAllCustomers();

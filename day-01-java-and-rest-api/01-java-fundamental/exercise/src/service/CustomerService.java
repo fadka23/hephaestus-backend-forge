@@ -12,10 +12,19 @@ public class CustomerService {
     private Long sequence = 1L;
 
     public Customer createCustomer(String fullName, String email, String phoneNumber) {
-        Customer customer = new Customer(sequence, fullName, email, phoneNumber);
-        customerStorage.put(sequence, customer);
-        sequence++;
-        return customer;
+        try {
+
+            if (fullName == null || fullName.trim().isEmpty()) {
+                throw new IllegalArgumentException("Nama harus ada isi");
+            }
+            Customer customer = new Customer(sequence, fullName, email, phoneNumber);
+            customerStorage.put(sequence, customer);
+            sequence ++;
+            return customer;
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     public Customer getCustomerById(Long id) {
@@ -24,5 +33,13 @@ public class CustomerService {
 
     public List<Customer> getAllCustomers() {
         return new ArrayList<>(customerStorage.values());
+    }
+
+    public void updateCustomerEmail(Long id, String email) {
+        customerStorage.get(id).setEmail(email);
+    }
+
+    public void deleteCustomer(Long id) {
+        customerStorage.remove(id);
     }
 }
