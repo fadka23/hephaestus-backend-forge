@@ -225,5 +225,5 @@ Apa 2 hal yang masih membingungkan?
 Apa 1 pertanyaan untuk mentor?
 
 ```text
-Tidak ada
+Tidak ada                                                   l
 ```
