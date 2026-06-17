@@ -1,5 +1,6 @@
 package com.fif.training.exercisespringboot.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,8 @@ import com.fif.training.exercisespringboot.DTO.CreateCustomerRequest;
 import com.fif.training.exercisespringboot.DTO.CustomerResponse;
 import com.fif.training.exercisespringboot.Model.Customer;
 import com.fif.training.exercisespringboot.exception.CustomerNotFoundException;
+
+import com.fif.training.exercisespringboot.DTO.UpdateCustomerRequest;
 
 public class CustomerService {
 
@@ -24,6 +27,8 @@ public class CustomerService {
         response.setFullName(customer.getFullName());
         response.setEmail(customer.getEmail());
         response.setPhoneNumber(customer.getPhoneNumber());
+        response.setCreated_at(customer.getCreatedAt().toString());
+        response.setUpdated_at(customer.getUpdatedAt().toString());
         return response;
     }
 
@@ -38,16 +43,20 @@ public class CustomerService {
         }
 
         // Cleaning RequestBody
-        String cleanFullname = request.getFullName().trim().toLowerCase();
+        String cleanFullname = request.getFullName();
         String cleanPhoneNumber = request.getPhoneNumber().trim();
         String cleanEmail = request.getEmail().trim().toLowerCase();
+
+        LocalDateTime now = LocalDateTime.now();
 
         // Create new Customer
         Customer customer = new Customer(
                 id,
                 cleanFullname,
                 cleanEmail,
-                cleanPhoneNumber);
+                cleanPhoneNumber,
+                now,
+                now);
 
         // Save in storage
         customerStorage.put(id, customer);
@@ -58,6 +67,8 @@ public class CustomerService {
         response.setFullName(customer.getFullName());
         response.setEmail(customer.getEmail());
         response.setPhoneNumber(customer.getPhoneNumber());
+        response.setCreated_at(customer.getCreatedAt().toString());
+        response.setUpdated_at(customer.getUpdatedAt().toString());
         return response;
     }
 
@@ -71,6 +82,8 @@ public class CustomerService {
             customerResponse.setFullName(customer.getFullName());
             customerResponse.setEmail(customer.getEmail());
             customerResponse.setPhoneNumber(customer.getPhoneNumber());
+            customerResponse.setCreated_at(customer.getCreatedAt().toString());
+            customerResponse.setUpdated_at(customer.getUpdatedAt().toString());
             response.add(customerResponse);
         }
         return response;
@@ -87,6 +100,8 @@ public class CustomerService {
         response.setFullName(customer.getFullName());
         response.setEmail(customer.getEmail());
         response.setPhoneNumber(customer.getPhoneNumber());
+        response.setCreated_at(customer.getCreatedAt().toString());
+        response.setUpdated_at(customer.getUpdatedAt().toString());
         return response;
     }
 
@@ -101,9 +116,13 @@ public class CustomerService {
         return response;
     }
 
-    // Service editCustomerById
-    public CustomerResponse editCustomerById(Long id, CreateCustomerRequest request) {
+    // Service putCustomerById
+    public CustomerResponse putCustomerById(Long id, UpdateCustomerRequest request) {
         Customer customer = customerStorage.get(id);
+
+        if (customer == null) {
+            throw new CustomerNotFoundException(id);
+        }
 
         // Fullname Validation
         if (request.getFullName() == null || request.getFullName().isBlank()) {
@@ -111,15 +130,51 @@ public class CustomerService {
         }
 
         // Cleaning RequestBody
-        String cleanFullname = request.getFullName().trim().toLowerCase();
+        String cleanFullname = request.getFullName();
         String cleanPhoneNumber = request.getPhoneNumber().trim();
         String cleanEmail = request.getEmail().trim().toLowerCase();
 
         // Edit Value
+        customer.setFullName(cleanFullname);
+        customer.setEmail(cleanEmail);
+        customer.setPhoneNumber(cleanPhoneNumber);
+        customer.setUpdatedAt(LocalDateTime.now());
+
+        // Mapping Response
+        CustomerResponse response = toCustomerResponse(customer);
+        return response;
+    }
+
+    // Service patchCustomerById
+    public CustomerResponse patchCustomerById(Long id,
+            com.fif.training.exercisespringboot.DTO.PatchCustomerRequest request) {
+        Customer customer = customerStorage.get(id);
+
+        if (customer == null) {
+            throw new CustomerNotFoundException(id);
+        }
+
+        // Fullname Validation
+        if (request.getFullName() != null) {
+            customer.setFullName(request.getFullName());
+        }
+
+        if (request.getEmail() != null) {
+            customer.setEmail(request.getEmail());
+        }
+
+        if (request.getPhoneNumber() != null) {
+            customer.setPhoneNumber(request.getPhoneNumber());
+        }
+
+        // Cleaning RequestBody
+
+        // Edit Value
         if (customer != null) {
-            customer.setFullName(cleanFullname);
-            customer.setEmail(cleanEmail);
-            customer.setPhoneNumber(cleanPhoneNumber);
+            customer.setFullName(customer.getFullName());
+            customer.setEmail(customer.getEmail());
+            customer.setPhoneNumber(customer.getPhoneNumber());
+            customer.setUpdatedAt(LocalDateTime.now());
         }
 
         // Mapping Response
@@ -132,9 +187,19 @@ public class CustomerService {
         String keyword = name.toLowerCase();
 
         return customerStorage.values().stream()
-                .filter(customer -> customer.getFullName().toLowerCase().contains(keyword))
+                .filter(customer -> customer.getFullName().contains(keyword))
                 .map(this::toCustomerResponse)
                 .collect(Collectors.toList());
-
     }
+
+    // Search searchCustomerByEmail
+    public List<CustomerResponse> searchCustomerByEmail(String email) {
+        String keyword = email.toLowerCase();
+
+        return customerStorage.values().stream()
+                .filter(customer -> customer.getEmail().toLowerCase().contains(keyword))
+                .map(this::toCustomerResponse)
+                .collect(Collectors.toList());
+    }
+
 }

@@ -12,7 +12,9 @@ import lombok.Setter;
         "id",
         "full_name",
         "email",
-        "phone_number"
+        "phone_number",
+        "created_at",
+        "updated_at"
 })
 public class CustomerResponse {
     private Long id;
@@ -23,4 +25,7 @@ public class CustomerResponse {
 
     @JsonProperty("phone_number")
     private String phoneNumber;
+
+    private String created_at;
+    private String updated_at;
 }
