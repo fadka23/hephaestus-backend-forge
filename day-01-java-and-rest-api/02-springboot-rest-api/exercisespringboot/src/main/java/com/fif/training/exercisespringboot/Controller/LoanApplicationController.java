@@ -64,15 +64,15 @@ public class LoanApplicationController {
 
     @GetMapping
     public ResponseEntity<List<LoanApplicationResponse>> getAllLoanApplications(
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false) LoanStatus status,
             @RequestParam(name = "customer_id", required = false) Long customerId,
             HttpServletRequest request) {
 
         validateToken(request);
 
         LoanStatus filterStatus = null;
-        if (status != null && !status.isBlank()) {
-            filterStatus = LoanStatus.valueOf(status.toUpperCase());
+        if (status != null) {
+            filterStatus = status;
         }
 
         return ResponseEntity.ok(loanApplicationService.getAll(filterStatus, customerId));
